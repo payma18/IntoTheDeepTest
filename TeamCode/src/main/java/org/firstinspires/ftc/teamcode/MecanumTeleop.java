@@ -74,11 +74,15 @@ public class MecanumTeleop extends LinearOpMode {
     private DcMotor leftBackDrive = null;
     private DcMotor rightFrontDrive = null;
     private DcMotor rightBackDrive = null;
+    private DcMotor slideVertical = null;
+    private DcMotor slideHorizontal = null;
 
     @Override
     public void runOpMode() {
 
-        double speed = 1.0;   // used to manage halfspeed, defaults to full speed
+        double speed = 1.0;   // used to manage half speed, defaults to full speed
+        boolean invertDir = false;  // used for inverted direction prompts
+        int invDir = 1;    // used to activate inverted direction
         boolean keyA = false, keyB = false;    // used for toggle keys
 
         // Initialize the hardware variables. Note that the strings used here must correspond
@@ -87,6 +91,8 @@ public class MecanumTeleop extends LinearOpMode {
         leftBackDrive  = hardwareMap.get(DcMotor.class, "left_back_drive");
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
         rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
+        slideVertical = hardwareMap.get(DcMotor.class, "vertical_slide");
+        slideHorizontal = hardwareMap.get(DcMotor.class, "horizontal_slide");
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
@@ -102,6 +108,8 @@ public class MecanumTeleop extends LinearOpMode {
         leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
+        slideVertical.setDirection(DcMotor.Direction.FORWARD);
+        slideHorizontal.setDirection(DcMotor.Direction.FORWARD);
 
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Initialized");
@@ -112,7 +120,6 @@ public class MecanumTeleop extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-
 
             double max;
 
@@ -173,16 +180,44 @@ public class MecanumTeleop extends LinearOpMode {
                 keyA = false;
             }
 
+            if (gamepad1.b) {
+                if (keyB == false) {
+                    keyB = !keyB;
+                    invertDir = !invertDir;
+                    if (invertDir) {
+                        invDir = -1;
+                    } else {
+                        invDir = 1;
+                    }
+                }
+            } else {
+                keyB = false;
+            }
+
             // Send calculated power to wheels
-            leftFrontDrive.setPower(leftFrontPower * speed);
-            rightFrontDrive.setPower(rightFrontPower * speed);
-            leftBackDrive.setPower(leftBackPower * speed);
-            rightBackDrive.setPower(rightBackPower * speed);
+            leftFrontDrive.setPower(leftFrontPower * speed * invDir);
+            rightFrontDrive.setPower(rightFrontPower * speed * invDir);
+            leftBackDrive.setPower(leftBackPower * speed * invDir);
+            rightBackDrive.setPower(rightBackPower * speed * invDir);
+
+            if (gamepad1.dpad_up)
+                slideVertical.setPower(0.1);
+            else if (gamepad1.dpad_down) {
+                slideVertical.setPower(-0.1);
+            }
+            
+            if (gamepad1.dpad_right) {
+                slideHorizontal.setPower(0.1);
+            } else if (gamepad1.dpad_left) {
+                slideHorizontal.setPower(-0.1);
+            }
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
-            telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
-            telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
+            telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower * speed * invDir, rightFrontPower * speed * invDir);
+            telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower * speed * invDir, rightBackPower * speed * invDir);
+            telemetry.addData("Speed", "%4.2f", speed);
+            telemetry.addData("Invert Direction", "%1b", invertDir);
             telemetry.update();
         }
     }}
