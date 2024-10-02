@@ -65,8 +65,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
-@TeleOp(name="Basic Mecanum Drive Teleop (Cheezitbot)", group="Linear OpMode")
-@Disabled
+@TeleOp(name="Cheezitbot Teleop Basic", group="Linear OpMode")
+
 public class BasicCheezitMecanumTeleop extends LinearOpMode {
 
     // Declare OpMode members for each of the 4 motors.
@@ -119,8 +119,8 @@ public class BasicCheezitMecanumTeleop extends LinearOpMode {
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
             // Set up a variable for each drive wheel to save the power level for telemetry.
-            double leftFrontPower  = -axial + lateral + yaw;
-            double rightFrontPower = -axial - lateral - yaw;
+            double leftFrontPower  = axial + lateral + yaw;
+            double rightFrontPower = axial - lateral - yaw;
             double leftBackPower   = axial - lateral + yaw;
             double rightBackPower  = axial + lateral - yaw;
 
