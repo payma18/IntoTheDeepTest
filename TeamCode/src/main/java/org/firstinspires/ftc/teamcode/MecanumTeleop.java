@@ -127,6 +127,8 @@ public class MecanumTeleop extends LinearOpMode {
             double axial   = -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
             double lateral = -gamepad1.left_stick_x;
             double yaw     =  gamepad1.right_stick_x;
+            double VslideInput = -gamepad2.left_stick_y;
+            double HslideInput = -gamepad2.right_stick_y;
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
             // Set up a variable for each drive wheel to save the power level for telemetry.
@@ -200,16 +202,44 @@ public class MecanumTeleop extends LinearOpMode {
             leftBackDrive.setPower(leftBackPower * speed * invDir);
             rightBackDrive.setPower(rightBackPower * speed * invDir);
 
-            if (gamepad1.dpad_up)
-                slideVertical.setPower(0.1);
-            else if (gamepad1.dpad_down) {
-                slideVertical.setPower(-0.1);
+            slideHorizontal.setPower(0);
+            if (VslideInput > 0.1 || VslideInput < -0.1) {
+                slideVertical.setPower(VslideInput);
+            } else {
+                /*
+                if (gamepad1.dpad_up) {
+                    slideVertical.setPower(0.5);
+                } else if (gamepad1.dpad_down) {
+                    slideVertical.setPower(-0.5);
+                } else {
+                    slideVertical.setPower(0);
+                }
+                */
+                if (gamepad1.left_bumper) {
+                    slideVertical.setPower(-0.5);
+                } else {
+                    slideVertical.setPower(gamepad1.left_trigger);
+                }
             }
-            
-            if (gamepad1.dpad_right) {
-                slideHorizontal.setPower(0.1);
-            } else if (gamepad1.dpad_left) {
-                slideHorizontal.setPower(-0.1);
+
+            slideHorizontal.setPower(0);
+            if (HslideInput > 0.1 || HslideInput < -0.1) {
+                slideHorizontal.setPower(HslideInput);
+            } else {
+                /*
+                if (gamepad1.dpad_right) {
+                    slideHorizontal.setPower(0.5);
+                } else if (gamepad1.dpad_left) {
+                    slideHorizontal.setPower(-0.5);
+                } else {
+                    slideHorizontal.setPower(0);
+                }
+                */
+                if (gamepad1.right_bumper) {
+                    slideHorizontal.setPower(-0.5);
+                } else {
+                    slideHorizontal.setPower(gamepad1.right_trigger);
+                }
             }
 
             // Show the elapsed game time and wheel power.
@@ -220,4 +250,5 @@ public class MecanumTeleop extends LinearOpMode {
             telemetry.addData("Invert Direction", "%1b", invertDir);
             telemetry.update();
         }
-    }}
+    }
+}
